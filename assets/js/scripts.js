@@ -1,4 +1,3 @@
-
 function scroll_to(clicked_link, nav_height) {
 	var element_class = clicked_link.attr('href').replace('#', '.');
 	var scroll_to = 0;
@@ -11,9 +10,62 @@ function scroll_to(clicked_link, nav_height) {
 	}
 }
 
+function validateEmail(email) {
+    var re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+    return re.test(email);
+}
+
+function sendRequest(name, email, company, size) {
+	var str = name + '|' + email + '|' + company + '|' + size;
+	console.log('sendTracking:', str);
+	ga('send', 'event', 'email', 'click', str);
+}
+
 
 jQuery(document).ready(function() {
-	
+	$('#request-form').submit(function (event) {
+		console.log('submit...');
+		var errorClass = 'has-error',
+			hasError = false,
+			name = $('[name="form-name"]'),
+			email = $('[name="form-email"]'),
+			company = $('[name="form-company"]'),
+			size = $('[name="form-size"]');
+
+		$('.alert-danger').addClass('hidden');
+		$('.alert-success').addClass('hidden');
+		$('.' + errorClass).removeClass(errorClass);
+
+		if (!name.val()) {
+			hasError = true;
+			name.parent().addClass(errorClass);
+		}
+		if (!email.val() || !validateEmail(email.val())) {
+			hasError = true;
+			email.parent().addClass(errorClass);
+		}
+		if (!company.val()) {
+			hasError = true;
+			company.parent().addClass(errorClass);
+		}
+		if (!size.val()) {
+			hasError = true;
+			size.parent().addClass(errorClass);
+		}
+
+		if (!hasError) {
+			sendRequest(name.val(), email.val(), company.val(), size.val());
+			$('.alert-success').removeClass('hidden');
+			name.val('');
+			email.val('');
+			company.val('');
+			size.val('');
+		} else {
+			$('.alert-danger').removeClass('hidden');
+		}
+		event.preventDefault();
+	});
+
 	/*
 	    Navigation
 	*/
